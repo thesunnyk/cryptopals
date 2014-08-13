@@ -20,22 +20,33 @@ mod base64 {
 
     // Naked functions for now
 
+    fn to_hex_digits(s: &str) -> Result<Vec<u8>, &'static str> {
+        let mut result = Vec::new();
+        for c in s.chars() {
+            match c.to_digit(16) {
+                Some(x) => result.push(x as u8),
+                None => return Err("Could not match hex")
+            }
+        }
+        Ok(result)
+    }
+
+    fn glue(v : &[u8]) -> Vec<(u8, u8)> {
+        match v {
+            [a, b, ..rest] => vec![(a, b)] + glue(rest),
+            [a] => vec![(a, 0)],
+            [] => vec![]
+        }
+    }
+
     pub fn to_hex(s : &str) -> Result<Vec<u8>, &'static str> {
         let mut result = Vec::new();
         let mut rem : u8 = 0;
-        for c in s.chars() {
-            match c.to_digit(16) {
-                Some(x) => {
-                    if rem == 0 {
-                        rem = x as u8;
-                    } else {
-                        let res : u8 = rem << 4 | x as u8;
-                        result.push(res);
-                        rem = 0;
-                    }
-                },
-                None => return Err("Could not match hex")
-            }
+        match to_hex_digits(s) {
+            Ok(x) => for &(a, b) in glue(x.as_slice()).iter() {
+                result.push(a << 4 | b);
+            },
+            Err(x) => return Err(x)
         }
         Ok(result)
     }
