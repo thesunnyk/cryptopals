@@ -22,9 +22,18 @@ mod base64 {
 
     pub fn to_hex(s : &str) -> Result<Vec<u8>, &'static str> {
         let mut result = Vec::new();
+        let mut rem : u8 = 0;
         for c in s.chars() {
             match c.to_digit(16) {
-                Some(x) => result.push(x as u8),
+                Some(x) => {
+                    if rem == 0 {
+                        rem = x as u8;
+                    } else {
+                        let res : u8 = rem << 4 | x as u8;
+                        result.push(res);
+                        rem = 0;
+                    }
+                },
                 None => return Err("Could not match hex")
             }
         }
@@ -56,18 +65,19 @@ mod base64 {
     pub fn to_base64_unpacked(v : Vec<u8>) -> Vec<U8b64> {
         let mut result = Vec::new();
         let mut rem: u8 = 0;
-        let mut offset = 0;
+        let mut offset = 2;
         for i in v.iter() {
-            let comp = rem | (i >> offset);
+            let comp = rem << (8 - offset) | ((*i as u8) >> offset);
             result.push(comp & 0x3f);
+            rem = i & ((1 << offset) - 1);
             offset += 2;
-            rem = i << (8 - offset);
-            if (offset == 8) {
+            if offset == 8 {
                 result.push(rem & 0x3f);
-                offset = 0;
+                offset = 2;
+                rem = 0;
             }
         }
-        if offset > 0 { // Remainder
+        if offset > 2 { // Remainder
             assert!(rem == (rem & 0x3f));
             result.push(rem);
         }
@@ -83,7 +93,6 @@ mod base64 {
             Ok(x) => {
                 let data_b64 = to_base64_unpacked(x);
                 let data_str = to_base64_string(data_b64);
-                println!("Result: {}", data_str)
                 assert!(data_str == expected.to_string());
             },
             Err(y) => {
