@@ -1,10 +1,10 @@
 RUSTC=rustc
 RUSTDOC=rustdoc
 FLAGS=
-SOURCES=hello.rs
+SOURCES=base64.rs
 OUTPUT=hellorust
 
-all: doc $(OUTPUT)
+all: doc test $(OUTPUT)
 
 .PHONY: all doc clean
 
@@ -13,6 +13,9 @@ $(OUTPUT): $(SOURCES)
 
 doc: $(SOURCES)
 	$(RUSTDOC) $<
+
+test: $(SOURCES)
+	$(RUSTC) --test $<
 
 clean:
 	rm $(OUTPUT)
