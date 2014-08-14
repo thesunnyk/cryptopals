@@ -1,19 +1,8 @@
-// Package ID
-#![ crate_id = "cryptopals#0.1" ]
-
-// Additional metadata attributes
-#![ desc = "base64 converter" ]
-#![ license = "GPL" ]
-#![ comment = "http://cryptopals.com/sets/1/challenges/1/" ]
-
-// Specify the output type
-#![ crate_type = "lib" ]
 
 // extern crate stuff
 extern crate core;
 
-// Mods
-mod base64 {
+pub mod base64 {
     use std::vec::Vec;
     use std::char;
     use core::char::Char;
@@ -31,6 +20,7 @@ mod base64 {
         Ok(result)
     }
 
+    // TODO Shouldn't write recursive code in Rust.
     fn glue(v : &[u8]) -> Vec<(u8, u8)> {
         match v {
             [a, b, ..rest] => vec![(a, b)] + glue(rest),
@@ -41,7 +31,6 @@ mod base64 {
 
     pub fn to_hex(s : &str) -> Result<Vec<u8>, &'static str> {
         let mut result = Vec::new();
-        let mut rem : u8 = 0;
         match to_hex_digits(s) {
             Ok(x) => for &(a, b) in glue(x.as_slice()).iter() {
                 result.push(a << 4 | b);
@@ -51,7 +40,7 @@ mod base64 {
         Ok(result)
     }
 
-    type U8b64 = u8;
+    pub type U8b64 = u8;
 
     pub fn to_base64_string(v : Vec<U8b64>) -> String {
         let mut result = String::new();
@@ -110,7 +99,6 @@ mod base64 {
                 fail!(y);
             }
         }
-
     }
 }
 
