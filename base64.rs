@@ -40,7 +40,7 @@ pub fn to_base64_unpacked(v : Vec<u8>) -> Vec<U8b64> {
         }
     }
     if offset > 2 { // Remainder
-        assert!(rem == (rem & 0x3f));
+        assert_eq!(rem, (rem & 0x3f));
         result.push(rem);
     }
 

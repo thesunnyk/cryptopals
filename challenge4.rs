@@ -21,6 +21,6 @@ fn main() {
 
     let result = strutils::to_string(max.as_slice());
     println!("val: {}", result);
-    assert!(result == "Now that the party is jumping\n".to_string());
+    assert_eq!(result, "Now that the party is jumping\n".to_string());
 }
 

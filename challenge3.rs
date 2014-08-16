@@ -14,6 +14,6 @@ fn main() {
     };
     let xored = xor::xor_byte(x.as_slice(), val);
     println!("val: {} -> {}", val, strutils::to_string(xored.as_slice()));
-    assert!(val == 88);
+    assert_eq!(val, 88);
 }
 

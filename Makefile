@@ -1,7 +1,7 @@
 RUSTC=rustc
 RUSTDOC=rustdoc
 FLAGS=
-BINS=challenge1.out challenge2.out challenge3.out challenge4.out
+BINS=challenge1.out challenge2.out challenge3.out challenge4.out challenge5.out
 
 all: doc out
 

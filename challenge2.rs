@@ -20,6 +20,6 @@ fn main() {
         Ok(x) => x,
         Err(x) => fail!(x)
     };
-    assert!(xor::xor(x.as_slice(), y.as_slice()) == expected);
+    assert_eq!(xor::xor(x.as_slice(), y.as_slice()), expected);
 }
 

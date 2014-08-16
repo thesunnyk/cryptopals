@@ -9,7 +9,7 @@ fn main() {
         Ok(x) => {
             let data_b64 = base64::to_base64_unpacked(x);
             let data_str = base64::to_base64_string(data_b64);
-            assert!(data_str == expected.to_string());
+            assert_eq!(data_str, expected.to_string());
         },
         Err(y) => {
             fail!(y);
