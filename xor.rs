@@ -6,9 +6,15 @@ pub mod xor {
     use base64::base64;
     use std::iter::Repeat;
     use std::iter::range_inclusive;
+    use std::io::File;
 
     pub fn xor(x: &[u8], y: &[u8]) -> Vec<u8> {
         x.iter().zip(y.iter()).map(|(i, j)| { *i ^ *j }).collect()
+    }
+
+    pub fn xor_byte(x: &[u8], a: u8) -> Vec<u8> {
+        let rep : Vec<u8> = Repeat::new(a).take(x.len()).collect();
+        xor(x, rep.as_slice())
     }
 
     pub fn get_score(x: u8) -> uint {
@@ -53,12 +59,52 @@ pub mod xor {
     }
 
     pub fn get_xor_score(x: &[u8], a: u8) -> uint {
-        let rep : Vec<u8> = Repeat::new(a).take(x.len()).collect();
-        get_score_for(xor(x, rep.as_slice()).as_slice())
+        get_score_for(xor_byte(x, a).as_slice())
     }
 
     pub fn find_max_xor(x: &[u8]) -> Option<u8> {
         range_inclusive(0 as u8, 255 as u8).max_by(|&a| get_xor_score(x, a))
+    }
+
+    pub fn read_file(s : String) -> Vec<String> {
+        let p = Path::new(s);
+        let mut file = match File::open(&p) {
+            Ok(f) => f,
+            Err(e) => fail!(e)
+        };
+        let result = match file.read_to_str() {
+            Ok(r) => r,
+            Err(e) => fail!(e)
+        };
+
+        result.as_slice().split('\n').map(|x| x.to_string()).collect()
+    }
+
+    pub fn to_string(a: &[u8]) -> String {
+        let chars = a.iter().map(|x| x.to_ascii().to_char());
+        FromIterator::from_iter(chars)
+    }
+
+    #[test]
+    fn test_max_score_file() {
+        let lines_str = read_file("challenge_4.txt".to_string());
+        let lines : Vec<Vec<u8>> = lines_str.iter().map(|x| match base64::to_hex(x.as_slice()) {
+            Ok(x) => x,
+            Err(x) => fail!(x)
+        }).collect();
+        let max_xors = lines.iter().map(|x| match find_max_xor(x.as_slice()) {
+            Some(x) => x,
+            None => fail!("Could not find max xor")
+        });
+        let mut xored = lines.iter().zip(max_xors).map(|(l, s)| xor_byte(l.as_slice(), s));
+        let max = match xored.max_by(|x| get_score_for(x.as_slice())) {
+            Some(x) => x,
+            None => fail!("Could not get max score")
+        };
+
+        let result = to_string(max.as_slice());
+        println!("val: {}", result);
+        assert!(result == "Now that the party is jumping\n".to_string());
     }
 
     #[test]
@@ -74,9 +120,7 @@ pub mod xor {
         };
         let rep : Vec<u8> = Repeat::new(val).take(x.len()).collect();
         let xored = xor(x.as_slice(), rep.as_slice());
-        let chars = xored.iter().map(|x| x.to_ascii().to_char());
-        let result : String = FromIterator::from_iter(chars);
-        println!("val: {} -> {}", val, result);
+        println!("val: {} -> {}", val, to_string(xored.as_slice()));
         assert!(val == 88);
     }
 
@@ -85,7 +129,7 @@ pub mod xor {
         assert!(get_score('e'.to_ascii().to_byte()) == 13);
         assert!(get_score('s'.to_ascii().to_byte()) == 6);
         let helloscore = 6 + 13 + 4 + 4 + 8 + 0;
-        let helloascii = String::from_str("helloq").into_ascii();
+        let helloascii = "helloq".to_string().into_ascii();
         let hellostr : Vec<u8> = helloascii.iter().map(|x| x.to_byte()).collect();
         assert!(get_score_for(hellostr.as_slice()) == helloscore);
     }
