@@ -9,7 +9,7 @@ mod fileutils;
 mod base64;
 mod xor;
 
-fn find_candidate(keys : Vec<u8>, data: &[u8]) -> Option<u8> {
+fn find_candidate(keys : &[u8], data: &[u8]) -> Option<u8> {
     for key in keys.iter() {
         let cleartext_i = xor::xor_byte(data, *key);
         if cleartext_i.iter().all(|x| x.is_ascii()) {
@@ -28,7 +28,7 @@ fn find_key(keysize : uint, data : &[u8]) -> Option<Vec<u8>> {
             let data_i = strutils::skip_n(data.slice(i, data.len()), keysize);
             let keys : Vec<u8> = xor::get_max_xors(data_i.as_slice())
                 .iter().map(|&(x, _)| x).collect();
-            match find_candidate(keys, data_i.as_slice()) {
+            match find_candidate(keys.as_slice(), data_i.as_slice()) {
                 None => return None,
                 Some(x) => key.push(x)
             };
@@ -37,7 +37,7 @@ fn find_key(keysize : uint, data : &[u8]) -> Option<Vec<u8>> {
 }
 
 fn main() {
-    let lines_str = fileutils::read_file("challenge_4.txt".to_string());
+    let lines_str = fileutils::read_file("challenge_6.txt".to_string());
     let lines : String = lines_str.iter().fold("".to_string(), |x, y| x + *y);
     let data = match lines.as_slice().from_base64() {
         Err(x) => fail!(x),
