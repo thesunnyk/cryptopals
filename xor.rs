@@ -38,8 +38,11 @@ pub fn get_xor_score(x: &[u8], a: u8) -> uint {
     strutils::get_score_for(xor_byte(x, a).as_slice())
 }
 
-pub fn find_max_xor(x: &[u8]) -> Option<u8> {
-    range_inclusive(0 as u8, 255 as u8).max_by(|&a| get_xor_score(x, a))
+pub fn get_max_xors(x: &[u8]) -> Vec<(u8, uint)> {
+    let mut data : Vec<(u8, uint)> = range_inclusive(0 as u8, 255 as u8)
+        .map(|a| (a, get_xor_score(x, a))).collect();
+    data.sort_by(|&(_, a), &(_, b)| b.cmp(&a));
+    data
 }
 
 pub fn popcount(x : u8) -> uint {
@@ -53,13 +56,18 @@ pub fn hamming_distance(x: &[u8], y: &[u8]) -> uint {
     xor(x, y).iter().map(|&x| popcount(x)).fold(0, |x, y| x + y)
 }
 
+fn split_blocks(v : &[u8], n : uint) -> Vec<u8> {
+    v.iter().enumerate().filter_map(|(i, &x)| if (i / n) % 2 == 0 { Some(x) } else { None }).collect()
+}
+
 pub fn key_len_score(x: Vec<u8>, y: uint) -> uint {
-    assert!(x.len() > y * 2);
-    // TODO Don't know why I have to do the funny map :(
-    let first : Vec<u8> = x.iter().take(y).map(|&x| x).collect();
-    let second : Vec<u8> = x.iter().skip(y).take(y).map(|&x| x).collect();
+    use std::cmp::min;
+    let first = split_blocks(x.as_slice(), y);
+    let second = split_blocks(x.slice(y, x.len()), y);
+
+    let minlen = min(first.len(), second.len());
     // Meh. *1000 should be accurate enough.
-    hamming_distance(first.as_slice(), second.as_slice()) * 1000 / first.len()
+    hamming_distance(first.slice(0, minlen), second.slice(0, minlen)) * 1000 / first.len()
 }
 
 #[test]

@@ -8,10 +8,10 @@ fn main() {
         Ok(x) => x,
         Err(x) => fail!(x)
     };
-    let val = match xor::find_max_xor(x.as_slice()) {
-        Some(x) => x,
-        None => fail!("no max xor found")
-    };
+    let xors = xor::get_max_xors(x.as_slice());
+
+    let &(val, _) = xors.get(0);
+
     let xored = xor::xor_byte(x.as_slice(), val);
     println!("val: {} -> {}", val, strutils::to_string(xored.as_slice()));
     assert_eq!(val, 88);

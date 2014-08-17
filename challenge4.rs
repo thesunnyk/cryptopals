@@ -9,9 +9,10 @@ fn main() {
         Ok(x) => x,
         Err(x) => fail!(x)
     }).collect();
-    let max_xors = lines.iter().map(|x| match xor::find_max_xor(x.as_slice()) {
-        Some(x) => x,
-        None => fail!("Could not find max xor")
+    let max_xors = lines.iter().map(|x| {
+        let xors = xor::get_max_xors(x.as_slice());
+        let &(a, _) = xors.get(0);
+        a
     });
     let mut xored = lines.iter().zip(max_xors).map(|(l, s)| xor::xor_byte(l.as_slice(), s));
     let max = match xored.max_by(|x| strutils::get_score_for(x.as_slice())) {
