@@ -42,6 +42,34 @@ pub fn find_max_xor(x: &[u8]) -> Option<u8> {
     range_inclusive(0 as u8, 255 as u8).max_by(|&a| get_xor_score(x, a))
 }
 
+pub fn popcount(x : u8) -> uint {
+    let twocount = (x & 0x55) + ((x >> 1) & 0x55);
+    let fourcount = (twocount & 0x33) + ((twocount >> 2) & 0x33);
+    ((fourcount & 0x0f) + ((fourcount >> 4) & 0x0f)) as uint
+}
+
+pub fn hamming_distance(x: &[u8], y: &[u8]) -> uint {
+    assert_eq!(x.len(), y.len());
+    xor(x, y).iter().map(|&x| popcount(x)).fold(0, |x, y| x + y)
+}
+
+pub fn key_len_score(x: Vec<u8>, y: uint) -> uint {
+    assert!(x.len() > y * 2);
+    // TODO Don't know why I have to do the funny map :(
+    let first : Vec<u8> = x.iter().take(y).map(|&x| x).collect();
+    let second : Vec<u8> = x.iter().skip(y).take(y).map(|&x| x).collect();
+    // Meh. *1000 should be accurate enough.
+    hamming_distance(first.as_slice(), second.as_slice()) * 1000 / first.len()
+}
+
+#[test]
+fn test_hamming() {
+    let ham1 = strutils::from_ascii_string("this is a test".to_string());
+    let ham2 = strutils::from_ascii_string("wokka wokka!!!".to_string());
+    let distance = xor::hamming_distance(ham1.as_slice(), ham2.as_slice());
+    assert_eq!(distance, 37);
+}
+
 #[test]
 fn test_score() {
     assert_eq!(strutils::get_score('e'.to_ascii().to_byte()), 13);

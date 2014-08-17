@@ -4,24 +4,28 @@ use std::char;
 
 pub type U8b64 = u8;
 
-pub fn to_base64_string(v : Vec<U8b64>) -> String {
-    let mut result = String::new();
-    for i in v.iter() {
-        if *i < 26 {
-            let x = (i + 'A'.to_ascii().to_byte()).to_ascii().to_char();
-            result.push_char(x);
-        } else if *i < 52 {
-            let x = (i - 26 + 'a'.to_ascii().to_byte()).to_ascii().to_char();
-            result.push_char(x);
-        } else {
-            let digit = char::from_digit((i - 52) as uint, 10);
-            match digit {
-                Some(x) => result.push_char(x),
-                None => fail!("Badly converted Base64")
-            }
+fn to_base64_char(i : U8b64) -> char {
+    if i < 26 {
+        (i + 'A'.to_ascii().to_byte()).to_ascii().to_char()
+    } else if i < 52 {
+        (i - 26 + 'a'.to_ascii().to_byte()).to_ascii().to_char()
+    } else if i < 62 {
+        let digit = char::from_digit((i - 52) as uint, 10);
+        match digit {
+            Some(x) => x,
+            None => fail!("Digit couldn't be turned into a character")
+        }
+    } else {
+        match i {
+            62 => '+',
+            63 => '/',
+            _ => fail!("Invalid base64")
         }
     }
-    result
+}
+
+pub fn to_base64_string(v : Vec<U8b64>) -> String {
+    FromIterator::from_iter(v.iter().map(|&x| to_base64_char(x)))
 }
 
 pub fn to_base64_unpacked(v : Vec<u8>) -> Vec<U8b64> {
