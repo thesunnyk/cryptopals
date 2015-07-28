@@ -1,5 +1,9 @@
 
 use std::vec::Vec;
+use std::iter::FromIterator;
+use std::ascii::AsciiExt;
+use std::ffi::CString;
+use std::borrow::Borrow;
 
 fn to_hex_digits(s: &str) -> Result<Vec<u8>, &'static str> {
     let mut result = Vec::new();
@@ -21,7 +25,7 @@ fn glue(v : &[u8]) -> Vec<(u8, u8)> {
 pub fn to_hex(s : &str) -> Result<Vec<u8>, &'static str> {
     let mut result = Vec::new();
     match to_hex_digits(s) {
-        Ok(x) => for &(a, b) in glue(x.as_slice()).iter() {
+        Ok(x) => for &(a, b) in glue(x.borrow()).iter() {
             result.push(a << 4 | b);
         },
         Err(x) => return Err(x)
@@ -29,15 +33,15 @@ pub fn to_hex(s : &str) -> Result<Vec<u8>, &'static str> {
     Ok(result)
 }
 
-pub fn skip_n(v : &[u8], n : uint) -> Vec<u8> {
+pub fn skip_n(v : &[u8], n : usize) -> Vec<u8> {
     v.iter().enumerate().filter_map(|(i, &x)| if i % n == 0 { Some(x) } else { None }).collect()
 }
 
-pub fn get_score(x: u8) -> uint {
-    if !x.is_ascii() {
+pub fn get_score(x: u8) -> u64 {
+    if !(x as char).is_ascii() {
         0
     } else {
-        match x.to_ascii().to_lowercase().to_char() {
+        match (x as char).to_ascii_lowercase() {
             ' ' => 100,
             'a' => 82,
             'b' => 15,
@@ -70,16 +74,16 @@ pub fn get_score(x: u8) -> uint {
     }
 }
 
-pub fn get_score_for(x: &[u8]) -> uint {
+pub fn get_score_for(x: &[u8]) -> u64 {
     x.iter().map(|x| get_score(*x)).fold(0, |a, b| a + b)
 }
 
 pub fn to_string(a: &[u8]) -> String {
-    let chars = a.iter().map(|x| x.to_ascii().to_char());
+    let chars = a.iter().map(|x| x.clone() as char);
     FromIterator::from_iter(chars)
 }
 
 pub fn from_ascii_string(a: String) -> Vec<u8> {
-    a.as_slice().to_ascii().iter().map(|x| x.to_byte()).collect()
+    CString::new(a).unwrap().as_bytes().iter().map(|x| x.clone()).collect()
 }
 

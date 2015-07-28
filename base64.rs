@@ -1,25 +1,26 @@
 
 use std::vec::Vec;
 use std::char;
+use std::iter::FromIterator;
 
 pub type U8b64 = u8;
 
 fn to_base64_char(i : U8b64) -> char {
     if i < 26 {
-        (i + 'A'.to_ascii().to_byte()).to_ascii().to_char()
+        (i + 'A' as u8) as char
     } else if i < 52 {
-        (i - 26 + 'a'.to_ascii().to_byte()).to_ascii().to_char()
+        (i - 26 + 'a' as u8) as char
     } else if i < 62 {
-        let digit = char::from_digit((i - 52) as uint, 10);
+        let digit = char::from_digit((i - 52) as u32, 10);
         match digit {
             Some(x) => x,
-            None => fail!("Digit couldn't be turned into a character")
+            None => panic!("Digit couldn't be turned into a character")
         }
     } else {
         match i {
             62 => '+',
             63 => '/',
-            _ => fail!("Invalid base64")
+            _ => panic!("Invalid base64")
         }
     }
 }

@@ -12,7 +12,7 @@ fn main() {
             assert_eq!(data_str, expected.to_string());
         },
         Err(y) => {
-            fail!(y);
+            panic!(y);
         }
     }
 }

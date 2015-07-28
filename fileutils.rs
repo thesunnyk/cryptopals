@@ -1,16 +1,11 @@
 
-use std::io::File;
+use std::fs::File;
+use std::io::Read;
 
 pub fn read_file(s : String) -> Vec<String> {
-    let p = Path::new(s);
-    let mut file = match File::open(&p) {
-        Ok(f) => f,
-        Err(e) => fail!(e)
-    };
-    let result = match file.read_to_str() {
-        Ok(r) => r,
-        Err(e) => fail!(e)
-    };
+    let mut file = File::open(s).unwrap();
+    let mut result = String::new();
+    let size = file.read_to_string(&mut result).unwrap();
 
-    result.as_slice().split('\n').map(|x| x.to_string()).collect()
+    result.split('\n').map(|x| x.to_string()).collect()
 }
