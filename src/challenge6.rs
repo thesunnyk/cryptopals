@@ -1,8 +1,11 @@
 
+extern crate rustc_serialize;
+
 use std::iter;
 use std::borrow::Borrow;
 use std::ascii::AsciiExt;
 use std::ops::Index;
+use rustc_serialize::base64::FromBase64;
 
 mod strutils;
 mod fileutils;
@@ -39,7 +42,7 @@ fn find_key(keysize : usize, data : &[u8]) -> Option<Vec<u8>> {
 fn main() {
     let lines_str = fileutils::read_file("challenge_6.txt".to_string());
     let lines: String = lines_str.iter().fold("".to_string(), |x, y| x + y);
-    let data: Vec<u8> = match lines.borrow().from_base64() {
+    let data: Vec<u8> = match lines.from_base64() {
         Err(x) => panic!(x),
         Ok(x) => x
     };
