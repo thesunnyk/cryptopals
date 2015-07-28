@@ -43,7 +43,7 @@ pub fn get_xor_score(x: &[u8], a: u8) -> u64 {
 }
 
 pub fn get_max_xors(x: &[u8]) -> Vec<(u8, u64)> {
-    let mut data : Vec<(u8, u64)> = (0..256).map(|a| (a, get_xor_score(x, a))).collect();
+    let mut data : Vec<(u8, u64)> = (0..256).map(|a| (a as u8, get_xor_score(x, a as u8))).collect();
     data.sort_by(|&(_, a), &(_, b)| b.cmp(&a));
     data
 }
