@@ -77,17 +77,17 @@ pub fn key_len_score(x: Vec<u8>, y: usize) -> usize {
 fn test_hamming() {
     let ham1 = strutils::from_ascii_string("this is a test".to_string());
     let ham2 = strutils::from_ascii_string("wokka wokka!!!".to_string());
-    let distance = xor::hamming_distance(ham1.borrow(), ham2.borrow());
+    let distance = hamming_distance(ham1.borrow(), ham2.borrow());
     assert_eq!(distance, 37);
 }
 
 #[test]
 fn test_score() {
-    assert_eq!(strutils::get_score('e'.to_ascii().to_byte()), 13);
-    assert_eq!(strutils::get_score('s'.to_ascii().to_byte()), 6);
-    let helloscore = 6 + 13 + 4 + 4 + 8 + 0;
-    let helloascii = "helloq".to_string().into_ascii();
-    let hellostr : Vec<u8> = helloascii.iter().map(|x| x.to_byte()).collect();
+    assert_eq!(strutils::get_score('e' as u8), 130);
+    assert_eq!(strutils::get_score('s' as u8), 63);
+    let helloscore = 61 + 130 + 40 + 40 + 75 + 1;
+    let helloascii = "helloq".to_string().into_bytes();
+    let hellostr : Vec<u8> = helloascii.iter().map(|x| x.clone() as u8).collect();
     assert_eq!(strutils::get_score_for(hellostr.borrow()), helloscore);
 }
 

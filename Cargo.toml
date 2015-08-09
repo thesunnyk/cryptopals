@@ -5,6 +5,7 @@ authors = ["Sunny Kalsi <thesunnyk@gmail.com>"]
 
 [dependencies]
 rustc-serialize = "0.3"
+openssl = "0.6.4"
 
 [[bin]]
 name = "challenge1"
@@ -23,3 +24,6 @@ name = "challenge5"
 
 [[bin]]
 name = "challenge6"
+
+[[bin]]
+name = "challenge7"
