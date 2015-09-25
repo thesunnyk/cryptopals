@@ -27,3 +27,6 @@ name = "challenge6"
 
 [[bin]]
 name = "challenge7"
+
+[[bin]]
+name = "challenge8"
